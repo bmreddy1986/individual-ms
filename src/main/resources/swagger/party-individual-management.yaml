@@ -1,0 +1,128 @@
+---
+swagger: '2.0'
+info: 
+  description: Party Individual Management 
+  version: 1.0.0 #API version
+  title: Party Individual Management
+host: localhost 
+basePath: /partyManagement/v1
+schemes:
+  - http
+  - https
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /individual/{individualId}:
+    get:
+      tags:
+        - PartyIndividualManagement
+      summary: retrieve individual by id
+      description: The operation is to retrieve individual details by id
+      operationId: getIndividual
+      parameters:
+        - name: individualId
+          in: path 
+          description: Unique identifier of individual
+          required: true 
+          type: integer 
+          format: int64 #data type format, signed 64 bits
+        - name: Accept-Language
+          in: header
+          description: The locale of the client
+          required: false
+          type: string
+      responses:
+        200: 
+          description: |
+            *OK* - Retrieval Successful.
+          schema:
+            $ref: '#/definitions/Individual' #Response object details
+        400:
+          description: |
+            *Bad Request* - The server cannot process the request due to a malformed syntax. The response can be caused by missing mandatory query parameters, invalid value in the query parameters, validation exceptions, and so on.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: |
+            *Not Found* - The server did not find anything matching the request URI. The response can be caused by missing path parameters, invalid web resource, and so on.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /individual:
+    post:
+      tags:
+      - PartyIndividualManagement
+      description: |
+        The operation to create a new individual for the party. The operation will make sure that the consent profile uses the consent types defined in the reference data.
+      operationId: createIndividual
+      parameters:
+      - name: Accept-Language
+        in: header
+        description: The locale of the client
+        required: false
+        type: string
+      - in: body
+        name: individual
+        description: The new individual to be created.
+        required: true
+        schema:
+          $ref: '#/definitions/Individual'
+      responses:
+        201:
+          description: |
+            *Created* - Individual created Successfully.
+          schema:
+            $ref: '#/definitions/Individual'
+        400:
+          description: |
+            *Bad Request* - The server cannot process the request due to a malformed syntax. The response can be caused by missing mandatory query parameters, invalid value in the query parameters, validation exceptions, and so on.
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+  Individual:
+    type: object
+    properties:
+      id:
+        description: unique identifier of individual
+        type: integer
+        format: int64
+      firstName:
+        type: string
+        description: firstName of individual
+      lastName:
+        type: string
+        description: lastName of individual
+  ErrorResponse:
+    type: object
+    description: |
+      Error response. This object is used when an API throws an error, typically with a HTTP error response codes 3xx, 4xx, and 5xx
+    required:
+    - code
+    - reason
+    properties:
+      code:
+        type: string
+        description: |
+          Error code relevant to an application, defined in the API or in a common list
+      reason:
+        type: string
+        description: |
+          Explanation of the reason for the error that can be displayed to a user
+      message:
+        type: string
+        description: |
+          Additional information about the error  and corrective actions related to the error that can be displayed to a user
+      status:
+        type: string
+        description: |
+          HTTP error code extension
+      referenceError:
+        type: string
+        format: uri
+        description: |
+          URI of the documentation describing the error
+      traceId:
+        type: string
+        description: |
+          Unique tracker ID that is used to facilitate the troubleshooting

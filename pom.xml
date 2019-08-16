@@ -1,0 +1,117 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.mano.project.individual</groupId>
+	<artifactId>individual-ms</artifactId>
+	<packaging>jar</packaging>
+	<name>individual-ms</name>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<base-package>org.mano.project.individual</base-package>
+		<resources-dir>${project.basedir}/src/main/resources</resources-dir>
+	</properties>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>1.5.22</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${resources-dir}</directory>
+			</resource>
+		</resources>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<plugins>
+			<!-- Generate Springboot API's from swagger YAML file. -->
+			<plugin>
+				<groupId>io.swagger</groupId>
+				<artifactId>swagger-codegen-maven-plugin</artifactId>
+				<version>2.2.2</version>
+				<executions>
+					<execution>
+						<id>generate-swagger-server-code</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${resources-dir}/swagger/party-individual-management.yaml</inputSpec>
+							<language>spring</language>
+							<templateDirectory>${resources-dir}/templates</templateDirectory>
+							<configOptions>
+								<dateLibrary>java8</dateLibrary>
+								<sourceFolder>src/main/java</sourceFolder>
+								<interfaceOnly>true</interfaceOnly>
+							</configOptions>
+							<!-- <output>target/generated-sources</output> -->
+							<apiPackage>${base-package}.resources.interfaces</apiPackage>
+							<modelPackage>${base-package}.resources.models</modelPackage>
+							<invokerPackage>${base-package}.handlers</invokerPackage>
+						</configuration>
+					</execution>
+					<!-- Run Swagger again, this time targeting our Amdocs-specific "amdocs-msb-spring" 
+						language, which adds a single "Impl" file to the Spring Boot code that was 
+						already emitted by the plugin above. -->
+					<!-- <execution> <id>generate amdocs specific server delegate stub implementation</id> 
+						<goals> <goal>generate</goal> </goals> <configuration> <inputSpec>${project.build.directory}/${swagger-file.artifactId}.yaml</inputSpec> 
+						<language>amdocs-msb-spring</language> <modelPackage>${model-package}</modelPackage> 
+						<apiPackage>${api-package}</apiPackage> <configOptions> <generatePrivacyAnnotations>true</generatePrivacyAnnotations> 
+						</configOptions> </configuration> </execution> -->
+				</executions>
+			</plugin>
+
+			<!-- Make the generated classes folder as a source folder -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-generated-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-sources/swagger/src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
